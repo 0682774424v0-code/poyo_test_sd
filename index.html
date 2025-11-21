@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metadata by:: mikus</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&amp;display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <div class="server-list">
+            <div class="server active" title="Metadata Image">
+                <img src="img/server.png" alt="Metadata" class="server-icon">
+            </div>
+            <div class="server-divider"></div>
+            <div class="server" title="Stable Diffusion">
+                <i class="fas fa-wand-magic-sparkles"></i>
+            </div>
+            <div class="server-divider"></div>
+            <a href="https://discord.gg/UtYvGwFfvx" target="_blank" class="server" title="Discord">
+                <img src="img/discord.png" alt="CivitAI" class="server-icon">
+            </a>
+            <a href="https://civitai.com/user/vadigr123_" target="_blank" class="server" title="CivitAI">
+                <img src="img/civitai.png" alt="CivitAI" class="server-icon">
+            </a>
+            <a href="https://t.me/ai_mikus" target="_blank" class="server" title="Telegram">
+                <i class="fab fa-telegram"></i>
+            </a>
+        </div>
+        
+        <!-- SERVER 1: METADATA CHANNELS (VISIBLE BY DEFAULT) -->
+        <div class="channel-list active" id="metadata-channel-list" style="display: flex;">
+            <div class="channel-header">
+                <h2>Server For Edit</h2>
+            </div>
+            
+            <!-- Image Category -->
+            <div class="category">IMAGE</div>
+            <div class="channel active" data-tab="view" id="channel-view">
+                #viewing
+            </div>
+            <div class="channel" data-tab="edit" id="channel-edit">
+                #editing
+            </div>
+            <div class="channel" data-tab="dataset" id="channel-dataset" title="Dataset">
+                #dataset <span class="test-badge" aria-hidden="true">TEST</span>
+            </div>
+            
+            <!-- File Category -->
+            <div class="category">FILE</div>
+            <div class="channel" data-tab="lora">#lora-metadata</div>
+        </div>
+
+        <!-- SERVER 2: STABLE DIFFUSION CHANNELS (HIDDEN BY DEFAULT) -->
+        <div class="channel-list hidden" id="sd-channel-list" style="display: none;">
+            <div class="channel-header">
+                <h2>Server Gen Img</h2>
+            </div>
+            
+            <!-- Pictures Category -->
+            <div class="category">PICTURES</div>
+            <div class="channel" data-tab="sd-txt2img" id="channel-sd-txt2img">#txt2img</div>
+            <div class="channel" data-tab="sd-img2img" id="channel-sd-img2img">#img2img</div>
+            <div class="channel" data-tab="sd-inpaint" id="channel-sd-inpaint">#inpaint</div>
+            <div class="channel" data-tab="sd-settings" id="channel-sd-settings">#settings</div>
+        </div>
+        
+        <div class="main-content">
+            <!-- VIEW TAB -->
+            <div class="tab-content active" id="view-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">M</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Metadata Viewer</span>
+                                <span class="timestamp">Today at 12:00</span>
+                            </div>
+                            <div class="message-text">Drop an image to view its metadata
+                                <!-- reference open button removed -->
+                            </div>
+                            
+                            <div id="drop-area">
+                                <div class="drop-content">
+                                    <svg class="upload-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                                    </svg>
+                                    <p class="small-text">Drop an image to view metadata</p>
+                                    <p class="small-text">Supports PNG, JPG, JPEG</p>
+                                </div>
+                            </div>
+                            
+                            <div id="notification"></div>
+                            
+                            <div id="results" class="hidden">
+                                <div class="image-preview">
+                                    <!-- inline preview intentionally removed; popup used -->
+                                </div>
+                                
+                                <!-- PROMPT SECTION -->
+                                <div class="metadata-section">
+                                    <h3 class="section-title">PROMPT</h3>
+                                    <div class="metadata-box">
+                                        <pre id="prompt"></pre>
+                                        <button class="copy-btn" data-copy-target="prompt" title="Copy prompt"><i class="fa fa-copy"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- NEGATIVE PROMPT SECTION -->
+                                <div class="metadata-section">
+                                    <h3 class="section-title">NEGATIVE PROMPT</h3>
+                                    <div class="metadata-box">
+                                        <pre id="negative-prompt"></pre>
+                                        <button class="copy-btn" data-copy-target="negative-prompt" title="Copy negative prompt"><i class="fa fa-copy"></i></button>
+                                    </div>
+                                </div>
+
+                                <!-- PARAMETERS SECTION -->
+                                <div class="metadata-section">
+                                    <h3 class="section-title">PARAMETERS</h3>
+                                    <div class="metadata-box">
+                                        <div id="parameters-table"></div>
+                                        <button class="copy-btn" data-copy-target="parameters-table" title="Copy parameters"><i class="fa fa-copy"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EDIT TAB (sibling of view-tab) -->
+            <div class="tab-content hidden" id="edit-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">E</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Metadata Editor</span>
+                                <span class="timestamp">Today at 12:00</span>
+                            </div>
+                            <div class="message-text">Edit your image metadata below</div>
+                        </div>
+                    </div>
+
+                    <div id="edit-drop-area">
+                        <div class="drop-content">
+                            <svg class="upload-icon" viewBox="0 0 24 24">
+                                <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                            </svg>
+                            <p>Drag & drop image to edit</p>
+                            <p class="small-text">Supports PNG, JPG, JPEG</p>
+
+                            <!-- small reference open button removed -->
+                        </div>
+                    </div>
+
+                    <div id="edit-notification"></div>
+
+                    <div class="image-preview">
+                        <!-- edit preview removed (editor no longer shows inline preview) -->
+                    </div>
+
+                    <div class="metadata-section">
+                        <h3 class="section-title">EDIT PROMPT</h3>
+                        <div class="metadata-box">
+                            <textarea id="edit-prompt" class="metadata-input"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="metadata-section">
+                        <h3 class="section-title">EDIT NEGATIVE PROMPT</h3>
+                        <div class="metadata-box">
+                            <textarea id="edit-negative-prompt" class="metadata-input"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="metadata-section">
+                        <h3 class="section-title">EDIT PARAMETERS</h3>
+                        <div class="metadata-box">
+                            <div id="edit-parameters"></div>
+                        </div>
+                    </div>
+
+                    <div class="metadata-section">
+                        <button id="save-changes" class="discord-btn save-btn">
+                            <i class="fas fa-save"></i> Save & Download Image
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DATASET TAB (sibling of view-tab and edit-tab) -->
+            <div class="tab-content hidden" id="dataset-tab">
+
+
+                <div class="dataset-wrapper" role="application" aria-label="LoRA Dataset Creator">
+                    <aside class="dataset-sidebar">
+                        <h2>LoRA Dataset Creator</h2>
+                        <div class="dataset-steps" role="list">
+                            <div class="dataset-step" data-step="images" role="listitem">
+                                <div class="dataset-step-num">1</div>
+                                <div>Images</div>
+                            </div>
+                            <div class="dataset-step" data-step="dataset" role="listitem">
+                                <div class="dataset-step-num">2</div>
+                                <div>Dataset</div>
+                            </div>
+                            <div class="dataset-step" data-step="train" role="listitem">
+                                <div class="dataset-step-num">3</div>
+                                <div>Finish</div>
+                            </div>
+                        </div>
+                        <div class="dataset-sidebar-footer">
+                            <div class="dataset-sidebar-buttons">
+                            </div>
+                            <div class="dataset-progress">
+                                <div id="ds-progress-bar" class="dataset-progress-bar"></div>
+                            </div>
+                            <div id="dataset-stage-note" class="dataset-stage-note">Stage 1 — upload images</div>
+                        </div>
+                    </aside>
+
+                    <div class="dataset-main">
+                        <!-- Step 1: Images -->
+                        <div class="dataset-content-step active" data-step-content="images">
+                            <h1>Step 1: Upload Files</h1>
+                            <p class="info-text">Upload any image format or use a zip file to create a dataset</p>
+
+                            <div style="display: flex; gap: 15px; margin: 20px 0;">
+                                <button class="btn" onclick="document.getElementById('imageInput').click()">
+                                    📁 Upload Images
+                                </button>
+                                <button class="btn btn-secondary" onclick="showUrlModal()">
+                                    🔗 Download ZIP from URL
+                                </button>
+                            </div>
+
+                            <div class="upload-area" id="uploadArea">
+                                <div class="upload-icon">🖼️</div>
+                                <p style="font-size: 16px; margin-bottom: 10px;">Drag and drop images or zip here (or click to select files)</p>
+                                <p class="info-text">Attach up to 1000 files</p>
+                                <p class="info-text">Accepted file types: .png, .jpeg, .jpg, .webp, .zip</p>
+                                <p class="info-text">Images cannot exceed 50 MB</p>
+                            </div>
+                            <input type="file" id="imageInput" multiple accept=".png,.jpg,.jpeg,.webp,.zip">
+
+                            <div class="button-group">
+                                <button class="btn" onclick="goToStep(2)" id="nextBtn1" disabled>Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Dataset -->
+                        <div class="dataset-content-step" data-step-content="dataset">
+                            <h1>Step 2: Edit / Add Tags</h1>
+
+                            <div class="progress-info">
+                                <span id="labeledCount">0 / 0 with tags</span>
+                                <div>
+                                    <button class="btn btn-secondary" id="resetBtn" onclick="toggleResetMenu(event)">🔄 Reset ▼</button>
+                                    <div class="actions-menu" id="resetMenu" style="right: 0;">
+                                        <div class="actions-menu-item" onclick="resetTags()">🏷️ Reset all tags</div>
+                                        <div class="actions-menu-item" onclick="resetDataset()">🗑️ Reset entire dataset</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Tag Viewer -->
+                            <div class="tag-viewer">
+                                <div class="tag-viewer-header" onclick="toggleTagViewer()">
+                                    <h3>Tag Viewer <span class="tag-count" id="uniqueTagCount">0</span></h3>
+                                    <button class="collapse-btn">▼</button>
+                                </div>
+                                <div class="tag-viewer-content" id="tagViewerContent">
+                                    <div class="tag-search-container">
+                                        <input type="text" class="tag-search" id="tagSearch" placeholder="Search tags" oninput="filterTags()">
+                                        <button class="tag-action-btn" onclick="deselectAllTags()">Deselect all</button>
+                                        <button class="tag-action-btn" id="actionsBtn" onclick="toggleActionsMenu(event)">Actions ▼</button>
+                                        <div class="actions-menu" id="actionsMenu">
+                                            <div class="actions-menu-item" onclick="showRenameModal()">✏️ Rename tag</div>
+                                            <div class="actions-menu-item" onclick="showReplaceTagModal()">🔄 Replace tag</div>
+                                            <div class="actions-menu-item" onclick="showAddGlobalTagModal()">➕ Add global tag</div>
+                                        </div>
+                                    </div>
+                                    <div class="tag-list" id="tagList"></div>
+                                </div>
+                            </div>
+
+                            <!-- Image Grid -->
+                            <div class="image-grid" id="imageGrid"></div>
+
+                            <!-- Pagination -->
+                            <div class="pagination" id="pagination"></div>
+
+                            <div class="button-group">
+                                <button class="btn btn-secondary" onclick="goToStep(1)">Back</button>
+                                <button class="btn" onclick="goToStep(3)">Next</button>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Download Dataset -->
+                        <div class="dataset-content-step" data-step-content="train">
+                            <h1>Step 3: Download Dataset</h1>
+
+                            <div class="progress-info">
+                                <div>
+                                    <h3 style="margin-bottom: 10px;">Your dataset is ready!</h3>
+                                    <p class="info-text">Total images: <span id="totalImages">0</span></p>
+                                    <p class="info-text">Images with tags: <span id="taggedImages">0</span></p>
+                                </div>
+                            </div>
+
+                            <div style="margin-top: 30px;">
+                                <p class="info-text" style="margin-bottom: 15px;">
+                                    Your dataset will be downloaded as a ZIP file containing:
+                                </p>
+                                <ul style="color: #b9bbbe; margin-left: 30px; line-height: 1.8;">
+                                    <li>Images named from img1.png to img[N].png</li>
+                                    <li>Text files with tags (img1.txt, img2.txt, etc.)</li>
+                                    <li>Each text file contains comma-separated tags</li>
+                                </ul>
+                            </div>
+
+                            <div class="button-group">
+                                <button class="btn btn-secondary" onclick="goToStep(2)">Back</button>
+                                <button class="btn btn-success" onclick="downloadDataset()">📥 Download ZIP</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <aside class="dataset-inspector">
+                        <h3>Inspector</h3>
+                        <p class="dataset-selection">Upload an image to edit its tags, or select an image from the grid.</p>
+
+                        <div id="inspector-image-container" class="inspector-image-container">
+                            <img id="inspector-image-preview" src="" alt="Image preview" style="display: none;">
+                            <div id="inspector-upload-placeholder" class="inspector-upload-placeholder">
+                                <i class="fas fa-upload"></i>
+                                <p>Click or drop image</p>
+                            </div>
+                        </div>
+                        <input type="file" id="inspector-image-input" accept="image/*,.zip" style="display: none;">
+
+                        <!-- Wildcard Uploader -->
+                        <!-- Wildcards are loaded automatically from built-in CSV and optional files; inspector uses a single-line input with autocomplete -->
+                        <div id="inspector-tag-editor">
+                            <input type="text" id="inspector-tag-input" class="dataset-input" placeholder="Add tags or type to search wildcards">
+                            <div id="inspector-autocomplete" class="autocomplete-dropdown hidden"></div>
+                        </div>
+
+                        <div class="inspector-actions">
+                            <button id="inspector-save-tags" class="dataset-btn">Save Tags</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" id="loadingOverlay">
+                    <div class="loading-content">
+                        <div class="loading-spinner"></div>
+                        <div class="loading-text" id="loadingText">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- URL Modal for ZIP Download -->
+                <div class="url-modal" id="urlModal">
+                    <div class="url-modal-content">
+                        <h3 style="margin-bottom: 15px; color: #fff;">Download ZIP from URL</h3>
+                        <p class="info-text">Enter direct link to ZIP file</p>
+                        <input type="text" class="url-input" id="zipUrlInput" placeholder="https://example.com/dataset.zip">
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn" onclick="downloadZipFromUrl()" style="flex: 1;">✅ Download</button>
+                            <button class="btn btn-secondary" onclick="hideUrlModal()" style="flex: 1;">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zoom Modal -->
+                <div class="zoom-modal" id="zoomModal" onclick="hideZoomModal()">
+                    <img id="zoomImage" src="" alt="Zoomed image">
+                </div>
+
+                <!-- Rename Tags Modal -->
+                <div class="url-modal" id="renameModal">
+                    <div class="url-modal-content">
+                        <h3 style="margin-bottom: 15px; color: #fff;">Rename Tags</h3>
+                        <div id="renameTagsList"></div>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn" onclick="renameAllTags()" style="flex: 1;">✅ Rename All</button>
+                            <button class="btn btn-secondary" onclick="hideRenameModal()" style="flex: 1;">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Global Tag Modal -->
+                <div class="url-modal" id="addGlobalTagModal">
+                    <div class="url-modal-content">
+                        <h3 style="margin-bottom: 15px; color: #fff;">Add Global Tag</h3>
+                        <p class="info-text">This tag will be added to the beginning of all images</p>
+                        <input type="text" class="modal-input" id="globalTagInput" placeholder="Enter tag name">
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn" onclick="addGlobalTag()" style="flex: 1;">✅ Add</button>
+                            <button class="btn btn-secondary" onclick="hideAddGlobalTagModal()" style="flex: 1;">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Replace Tags Modal -->
+                <div class="url-modal" id="replaceTagModal">
+                    <div class="url-modal-content">
+                        <h3 style="margin-bottom: 15px; color: #fff;">Replace Tags</h3>
+                        <div id="replaceTagsList"></div>
+                        <div style="display: flex; gap: 10px; margin-top: 20px;">
+                            <button class="btn" onclick="replaceAllTags()" style="flex: 1;">✅ Replace All</button>
+                            <button class="btn btn-secondary" onclick="hideReplaceTagModal()" style="flex: 1;">❌ Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LORA TAB (sibling of view-tab and edit-tab) -->
+            <div class="tab-content hidden" id="lora-tab">
+                    <div class="message">
+                        <div class="avatar">L</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">LoRA Metadata</span>
+                                <span class="timestamp">Today at 12:00</span>
+                            </div>
+                            <div class="message-text">Drop a safetensors file to view its metadata</div>
+                        </div>
+                    </div>
+                    
+                    <div id="lora-drop-area" class="discord-drop-area">
+                        <div class="drop-content">
+                            <svg class="upload-icon" viewBox="0 0 24 24">
+                                <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+                            </svg>
+                            <p>Drag &amp; drop safetensors file here</p>
+                            <p class="small-text">Supports .safetensors files</p>
+                        </div>
+                    </div>
+                    
+                    <div id="lora-notification" class="discord-notification"></div>
+                    
+                    <div id="lora-results" class="hidden">
+                        <div class="metadata-grid">
+                            <!-- Model Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">MODEL</h3>
+                                <div class="metadata-box">
+                                    <div class="param-row">
+                                        <div class="param-name">Name:</div>
+                                        <div class="param-value" id="model-name"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Base Model:</div>
+                                        <div class="param-value" id="base-model"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">VAE:</div>
+                                        <div class="param-value" id="model-vae"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- General Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">GENERAL</h3>
+                                <div class="metadata-box">
+                                    <div class="param-row">
+                                        <div class="param-name">Batch:</div>
+                                        <div class="param-value" id="batch-size"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Resolution:</div>
+                                        <div class="param-value" id="resolution"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Clip Skip:</div>
+                                        <div class="param-value" id="clip-skip"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Epoch:</div>
+                                        <div class="param-value" id="epoch"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Steps:</div>
+                                        <div class="param-value" id="steps"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Optimizer Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">OPTIMIZER</h3>
+                                <div class="metadata-box">
+                                    <div class="param-row">
+                                        <div class="param-name">Type:</div>
+                                        <div class="param-value" id="optimizer-type"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Scheduler:</div>
+                                        <div class="param-value" id="scheduler"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Learning Rates:</div>
+                                        <div class="param-value" id="learning-rates"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Optional Args:</div>
+                                        <div class="param-value" id="optional-args"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Training Info Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">TRAINING INFO</h3>
+                                <div class="metadata-box">
+                                    <div class="param-row">
+                                        <div class="param-name">Train Date:</div>
+                                        <div class="param-value" id="train-date"></div>
+                                    </div>
+                                    <div class="param-row">
+                                        <div class="param-name">Train Time:</div>
+                                        <div class="param-value" id="train-time"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Dataset Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">DATASET</h3>
+                                <div class="metadata-box">
+                                    <pre id="lora-dataset-info"></pre>
+                                </div>
+                            </div>
+
+
+
+                            <!-- Tag Frequency Section -->
+                            <div class="metadata-section">
+                                <h3 class="section-title">TAG FREQUENCY <button id="copy-all-tags-btn" class="copy-all-tags-button" title="Copy all tags"><i class="fa fa-copy"></i></button></h3>
+                                <div class="metadata-box">
+                                    <pre id="tag-frequency"></pre>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SD TXT2IMG TAB -->
+            <div class="tab-content hidden" id="sd-txt2img-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">T</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Text to Image Generation</span>
+                                <span class="timestamp">Generate from text</span>
+                            </div>
+                            <div class="message-text">Enter your creative prompts below</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sd-container">
+                    <!-- Prompt Section -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PROMPT</h3>
+                        <textarea id="sd-prompt" class="metadata-input" placeholder="Describe what you want to generate..." style="min-height: 150px;"></textarea>
+                    </div>
+
+                    <!-- Negative Prompt Section -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">NEGATIVE PROMPT</h3>
+                        <textarea id="sd-negative" class="metadata-input" placeholder="Things you don't want..." style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <!-- Parameters Grid -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PARAMETERS</h3>
+                        <div class="sd-param-grid">
+                            <div>
+                                <label>Model</label>
+                                <select id="sd-model" class="metadata-input"></select>
+                            </div>
+                            <div>
+                                <label>Sampler</label>
+                                <select id="sd-sampler" class="metadata-input">
+                                    <option>Euler a</option>
+                                    <option>DPM++ 2M Karras</option>
+                                    <option>DPM++ SDE Karras</option>
+                                    <option>Heun</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Steps</label>
+                                <input type="number" id="sd-steps" class="metadata-input" min="1" max="150" value="20">
+                            </div>
+                            <div>
+                                <label>CFG Scale</label>
+                                <input type="number" id="sd-cfg" class="metadata-input" min="1" max="30" value="7" step="0.5">
+                            </div>
+                            <div>
+                                <label>Width</label>
+                                <input type="number" id="sd-width" class="metadata-input" min="512" max="2048" value="512" step="64">
+                            </div>
+                            <div>
+                                <label>Height</label>
+                                <input type="number" id="sd-height" class="metadata-input" min="512" max="2048" value="512" step="64">
+                            </div>
+                            <div>
+                                <label>Seed</label>
+                                <input type="number" id="sd-seed" class="metadata-input" value="-1">
+                            </div>
+                            <div>
+                                <label>Batch Count</label>
+                                <input type="number" id="sd-batch-count" class="metadata-input" min="1" max="10" value="1">
+                            </div>
+                            <div>
+                                <label>Batch Size</label>
+                                <input type="number" id="sd-batch-size" class="metadata-input" min="1" max="4" value="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LoRA Section -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">LORAS</h3>
+                        <div id="sd-lora-list" style="display: flex; flex-direction: column; gap: 8px;"></div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="metadata-section">
+                        <button id="sd-generate-btn" class="discord-btn" style="width: 100%; padding: 12px; background-color: var(--discord-accent); color: white; font-size: 16px;">
+                            <i class="fas fa-wand-magic-sparkles"></i> Generate
+                        </button>
+                    </div>
+
+                    <!-- Progress -->
+                    <div id="sd-progress-container" class="hidden">
+                        <div class="metadata-section">
+                            <h3 class="section-title">PROGRESS</h3>
+                            <div class="sd-progress-bar">
+                                <div id="sd-progress-fill" class="sd-progress-fill"></div>
+                            </div>
+                            <div style="text-align: center; margin-top: 8px; font-size: 14px;">
+                                <span id="sd-progress-text">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="sd-results-container" class="hidden">
+                        <div class="metadata-section">
+                            <h3 class="section-title">GENERATED IMAGES</h3>
+                            <div id="sd-images-grid" class="sd-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SD IMG2IMG TAB -->
+            <div class="tab-content hidden" id="sd-img2img-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">I</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Image to Image</span>
+                                <span class="timestamp">Modify existing images</span>
+                            </div>
+                            <div class="message-text">Upload an image and generate variations</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sd-container">
+                    <!-- Image Upload -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">BASE IMAGE</h3>
+                        <div id="sd-img2img-drop" class="discord-drop-area">
+                            <div class="drop-content">
+                                <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+                                <p>Drop image here or click to upload</p>
+                            </div>
+                        </div>
+                        <div id="sd-img2img-preview" style="text-align: center; margin-top: 12px;"></div>
+                    </div>
+
+                    <!-- Prompt -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PROMPT</h3>
+                        <textarea id="sd-img2img-prompt" class="metadata-input" placeholder="Describe modifications..." style="min-height: 120px;"></textarea>
+                    </div>
+
+                    <!-- Negative Prompt -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">NEGATIVE PROMPT</h3>
+                        <textarea id="sd-img2img-negative" class="metadata-input" style="min-height: 80px;"></textarea>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PARAMETERS</h3>
+                        <div class="sd-param-grid">
+                            <div>
+                                <label>Denoising Strength</label>
+                                <input type="number" id="sd-img2img-denoising" class="metadata-input" min="0" max="1" value="0.75" step="0.05">
+                            </div>
+                            <div>
+                                <label>Sampler</label>
+                                <select id="sd-img2img-sampler" class="metadata-input">
+                                    <option>Euler a</option>
+                                    <option>DPM++ 2M Karras</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Steps</label>
+                                <input type="number" id="sd-img2img-steps" class="metadata-input" min="1" max="150" value="20">
+                            </div>
+                            <div>
+                                <label>CFG Scale</label>
+                                <input type="number" id="sd-img2img-cfg" class="metadata-input" min="1" max="30" value="7" step="0.5">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="metadata-section">
+                        <button id="sd-img2img-generate-btn" class="discord-btn" style="width: 100%; padding: 12px; background-color: var(--discord-accent); color: white; font-size: 16px;">
+                            <i class="fas fa-wand-magic-sparkles"></i> Generate
+                        </button>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="sd-img2img-results" class="hidden">
+                        <div class="metadata-section">
+                            <h3 class="section-title">RESULTS</h3>
+                            <div id="sd-img2img-images" class="sd-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SD INPAINT TAB -->
+            <div class="tab-content hidden" id="sd-inpaint-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">P</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Inpainting</span>
+                                <span class="timestamp">Edit specific areas</span>
+                            </div>
+                            <div class="message-text">Draw on the canvas to select areas to regenerate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sd-container">
+                    <!-- Image Upload -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">BASE IMAGE</h3>
+                        <div id="sd-inpaint-drop" class="discord-drop-area">
+                            <div class="drop-content">
+                                <svg class="upload-icon" viewBox="0 0 24 24"><path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /></svg>
+                                <p>Drop image here</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Canvas -->
+                    <div class="metadata-section" id="sd-inpaint-canvas-section" style="display: none;">
+                        <h3 class="section-title">MASK CANVAS</h3>
+                        <div class="sd-canvas-container">
+                            <canvas id="sd-inpaint-canvas" class="sd-canvas" width="512" height="512"></canvas>
+                        </div>
+                        <div class="sd-tool-panel">
+                            <button id="sd-brush-btn" class="discord-btn" style="flex: 1;">Brush</button>
+                            <button id="sd-eraser-btn" class="discord-btn" style="flex: 1;">Eraser</button>
+                            <button id="sd-clear-btn" class="discord-btn" style="flex: 1;">Clear</button>
+                            <input type="range" id="sd-brush-size" min="1" max="50" value="20" style="flex: 1;">
+                        </div>
+                    </div>
+
+                    <!-- Prompt -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PROMPT</h3>
+                        <textarea id="sd-inpaint-prompt" class="metadata-input" style="min-height: 100px;"></textarea>
+                    </div>
+
+                    <!-- Parameters -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">PARAMETERS</h3>
+                        <div class="sd-param-grid">
+                            <div>
+                                <label>Mask Blur</label>
+                                <input type="number" id="sd-inpaint-mask-blur" class="metadata-input" min="0" max="64" value="4">
+                            </div>
+                            <div>
+                                <label>Inpaint Area</label>
+                                <select id="sd-inpaint-area" class="metadata-input">
+                                    <option>Whole picture</option>
+                                    <option>Only masked</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>Steps</label>
+                                <input type="number" id="sd-inpaint-steps" class="metadata-input" min="1" max="150" value="20">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Generate Button -->
+                    <div class="metadata-section">
+                        <button id="sd-inpaint-generate-btn" class="discord-btn" style="width: 100%; padding: 12px; background-color: var(--discord-accent); color: white; font-size: 16px;">
+                            <i class="fas fa-wand-magic-sparkles"></i> Generate
+                        </button>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="sd-inpaint-results" class="hidden">
+                        <div class="metadata-section">
+                            <h3 class="section-title">RESULTS</h3>
+                            <div id="sd-inpaint-images" class="sd-image-preview"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SD SETTINGS TAB -->
+            <div class="tab-content hidden" id="sd-settings-tab">
+                <div class="message-list">
+                    <div class="message">
+                        <div class="avatar">⚙️</div>
+                        <div class="message-content">
+                            <div class="message-header">
+                                <span class="username">Settings</span>
+                                <span class="timestamp">Configure API and models</span>
+                            </div>
+                            <div class="message-text">Configure your Stable Diffusion backend connection</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sd-container">
+                    <!-- API Configuration -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">API CONFIGURATION</h3>
+                        <div style="margin-bottom: 12px;">
+                            <label>Cloudflared Tunnel URL</label>
+                            <input type="text" id="sd-api-url" class="metadata-input" placeholder="https://xxxx.trycloudflare.com" style="margin-bottom: 8px;">
+                            <button id="sd-test-connection" class="discord-btn" style="width: 100%; margin-bottom: 8px;">Test Connection</button>
+                            <div id="sd-connection-status" style="display: flex; align-items: center; gap: 8px;">
+                                <div id="sd-status-indicator" style="width: 12px; height: 12px; border-radius: 50%; background-color: #888;"></div>
+                                <span id="sd-status-text">Not connected</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Keys -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">API KEYS</h3>
+                        <div style="margin-bottom: 12px;">
+                            <label>CivitAI API Key</label>
+                            <input type="password" id="sd-civitai-key" class="metadata-input" placeholder="Your CivitAI API key" style="margin-bottom: 8px;">
+                            <label>HuggingFace Token</label>
+                            <input type="password" id="sd-huggingface-token" class="metadata-input" placeholder="Your HuggingFace token" style="margin-bottom: 8px;">
+                            <button id="sd-save-keys" class="discord-btn" style="width: 100%;">Save Keys</button>
+                        </div>
+                    </div>
+
+                    <!-- Model Management -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">CHECKPOINTS</h3>
+                        <div id="sd-checkpoints-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 12px;"></div>
+                        <button id="sd-download-civitai" class="discord-btn" style="width: 100%; margin-bottom: 8px;">Download from CivitAI</button>
+                        <button id="sd-download-huggingface" class="discord-btn" style="width: 100%;">Download from HuggingFace</button>
+                    </div>
+
+                    <!-- Instructions -->
+                    <div class="metadata-section">
+                        <h3 class="section-title">SETUP INSTRUCTIONS</h3>
+                        <div style="background-color: var(--discord-darkest); padding: 12px; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+                            <p><strong>1. Open Google Colab notebook</strong></p>
+                            <p><strong>2. Install Stable Diffusion WebUI</strong></p>
+                            <p><strong>3. Run with API enabled:</strong> <code>python launch.py --api --cors-allow-origins=*</code></p>
+                            <p><strong>4. Install cloudflared and create tunnel</strong></p>
+                            <p><strong>5. Copy tunnel URL (https://xxxx.trycloudflare.com) here</strong></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reference popup (draggable) -->
+    <div id="ref-popup" class="ref-popup hidden" role="dialog" aria-hidden="true">
+        <div class="ref-header" id="ref-header" title="Drag to move">
+            <div class="win-controls">
+                <button id="ref-close" class="control red" title="Close (Alt)"></button>
+                <button id="ref-full" class="control yellow" title="Fullscreen (9)"></button>
+                <button id="ref-hide" class="control green" title="Hide (hold D)"></button>
+            </div>
+            <div class="ref-title" id="ref-title">Reference</div>
+        </div>
+        <div class="ref-body" id="ref-body">
+            <img id="ref-image" alt="Reference image" draggable="false">
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.js"></script>
+    <!-- JSZip for dataset export -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="stable-diffusion-api.js"></script>
+    <script src="script.js"></script>
+    <script>
+    // Simple copy button wiring for newly added copy buttons
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.copy-btn');
+        if (!btn) return;
+        const targetId = btn.getAttribute('data-copy-target');
+        if (!targetId) return;
+        const el = document.getElementById(targetId);
+        if (!el) return;
+        // If parameters-table, collect text from its rows; otherwise use innerText
+        let text = '';
+        if (targetId === 'parameters-table') {
+            const rows = Array.from(el.querySelectorAll('.param-row'));
+            if (rows.length) {
+                text = rows.map(r => {
+                    const name = r.querySelector('.param-name')?.textContent?.replace(':','')?.trim() || '';
+                    const value = r.querySelector('.param-value')?.textContent?.trim() || '';
+                    return name ? `${name}: ${value}` : value;
+                }).join('\n');
+            } else {
+                text = el.innerText || '';
+            }
+        } else {
+            text = el.innerText || '';
+        }
+        navigator.clipboard.writeText(text).then(() => {
+            // Show notification or feedback for copied text
+            const notification = document.createElement('div');
+            notification.className = 'copy-notification';
+            notification.innerText = 'Copied to clipboard!';
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 2000);
+        }, (err) => {
+            console.error('Error copying text: ', err);
+        });
+    });
+    </script>
+</body>
+</html>
