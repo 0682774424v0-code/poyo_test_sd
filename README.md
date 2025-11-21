@@ -1,6 +1,26 @@
 # 🎨 Stable Diffusion WebUI + GitHub Pages + Cloudflare Tunnel
 
+**🎯 Your AI Image Generator is Ready!**
+
 Веб-портал для управління Stable Diffusion через GitHub Pages з туннельованім доступом до локального сервера.
+
+> **👉 [START HERE: Read README.md or QUICK_START_UA.md]**
+> 
+> **📥 Download:** `server/Google_Colab_Backend_FIXED.ipynb`
+>
+> **⏱️ Setup Time:** 15-20 minutes
+>
+> **✅ No Python needed** - Just upload notebook to Google Colab!
+
+## 🚀 QUICKEST SETUP (3 Steps)
+
+1. **Download** → `server/Google_Colab_Backend_FIXED.ipynb`
+2. **Upload** → https://colab.research.google.com
+3. **Run cells [1-5]** → Get public URL → Paste in GitHub Pages Settings
+
+[📖 Full instructions in QUICK_START_UA.md or HOW_TO_USE.md]
+
+---
 
 ## ✨ Функціональність
 
