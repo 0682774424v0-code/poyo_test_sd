@@ -1,0 +1,51 @@
+# Cloudflare Tunnel configs
+tunnel-config.json
+.cloudflared/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+desktop.ini
+.AppleDouble
+.LSOverride
+
+# Временные файлы
+*.tmp
+*.temp
+*.log
+*.bak
+
+# Dependencies (если будут)
+node_modules/
+venv/
+__pycache__/
+*.pyc
+
+# Большие файлы (модели)
+*.ckpt
+*.pth
+*.safetensors
+*.pt
+weights/
+models/
+checkpoints/
+
+# Кеш
+.cache/
+*.cache
+
+# Местные переменные
+.env
+.env.local
+.env.*.local
+
+# Другое
+dist/
+build/

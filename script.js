@@ -1316,6 +1316,12 @@ class ImageMetadataEditor {
                 if (tabName === 'dataset' && window._datasetCreator) {
                     window._datasetCreator.goToStep(1);
                 }
+                
+                // Initialize SD settings when entering sd-settings tab
+                if (tabName === 'sd-settings' && window._tunnelManager) {
+                    window._tunnelManager.updateElements();
+                    window._tunnelManager.setupEventListeners();
+                }
             });
         });
 
